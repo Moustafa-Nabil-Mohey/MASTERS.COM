@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Italy Master's Tracker 2026 | Moustafa's Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #c7c7c7; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #a8a8a8; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
+
+    <header class="bg-white shadow-sm sticky top-0 z-50 backdrop-blur-md bg-white/90">
+        <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-bold">U</div>
+                <h1 class="text-xl font-bold text-slate-800 tracking-tight">UniTracker <span class="text-indigo-600">2026</span></h1>
+            </div>
+            <div class="text-xs font-semibold text-slate-500 bg-slate-100 px-3 py-1.5 rounded-full border border-slate-200">
+                📅 Today: <span id="currentDate" class="text-indigo-700"></span>
+            </div>
+        </div>
+    </header>
+
+    <div class="bg-indigo-700 pb-28 pt-12 px-4 shadow-xl relative overflow-hidden">
+        <div class="absolute top-0 left-0 w-64 h-64 bg-indigo-600 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
+        <div class="absolute top-0 right-0 w-64 h-64 bg-purple-600 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
+
+        <div class="max-w-4xl mx-auto text-center space-y-5 relative z-10">
+            <h2 class="text-3xl md:text-5xl font-bold text-white tracking-tight flex items-center justify-center gap-4">
+                <span class="text-yellow-300 filter drop-shadow-lg">🎓</span>
+                Master's Application Tracker
+            </h2>
+            <p class="text-indigo-100 text-lg max-w-2xl mx-auto">Track admission calls, start & end dates, and deadlines for top Italian universities.</p>
+            
+            <div class="mt-8 flex flex-col sm:flex-row gap-3 max-w-2xl mx-auto bg-white/10 p-2 rounded-2xl backdrop-blur-md border border-white/10">
+                <div class="relative flex-1">
+                    <span class="absolute left-4 top-3.5 text-indigo-200">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    </span>
+                    <input type="text" id="searchInput" onkeyup="filterUniversities()" 
+                        placeholder="Search university (e.g. Genoa)..." 
+                        class="w-full pl-11 pr-4 py-3 rounded-xl bg-white/10 text-white placeholder-indigo-200 focus:bg-white focus:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-300 transition-all border border-transparent">
+                </div>
+
+                <select id="statusFilter" onchange="filterUniversities()" class="py-3 px-6 rounded-xl bg-white text-indigo-900 font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-300 border-r-[16px] border-transparent cursor-pointer shadow-lg">
+                    <option value="all">Show All</option>
+                    <option value="open">🟢 Open Now</option>
+                    <option value="upcoming">🟡 Opening Soon</option>
+                    <option value="closed">🔴 Closed</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-6xl mx-auto px-4 -mt-20 pb-20 flex-grow z-20 relative">
+        <div id="cardsContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        </div>
+
+        <div id="noResults" class="hidden flex flex-col items-center justify-center mt-20 text-center">
+            <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center text-3xl mb-4">🔍</div>
+            <h3 class="text-xl font-bold text-gray-700">No matches found</h3>
+            <p class="text-gray-500">Try changing the filter or search term.</p>
+        </div>
+    </div>
+
+    <footer class="bg-white border-t border-slate-200 py-8 mt-auto">
+        <div class="max-w-6xl mx-auto px-4 text-center">
+            <p class="text-slate-500 text-sm">Built with ❤️ by Moustafa Nabil | Cloud & Devops Engineering</p>
+        </div>
+    </footer>
+
+    <script>
+        const today = new Date();
+        document.getElementById('currentDate').innerText = today.toLocaleDateString('en-GB');
+
+        // Data Source
+        const universities = [
+            {
+                name: "Politecnico di Milano",
+                major: "Computer Science & Engineering",
+                location: "Milan 🇮🇹",
+                image: "./images/polimi.jpg",
+                applyLink: "https://aunicalogin.polimi.it/aunicalogin/aunicalogin/controller/logout/SessioneTerminata.do?jaf_currentWFID=main&EVN_DEFAULT=evento", 
+                calls: [
+                    { name: "1st Call (Non-EU)", start: "2025-10-01", end: "2025-12-01", fee: "€50" },
+                    { name: "2nd Call (Non-EU)", start: "2026-01-13", end: "2026-02-27", fee: "€150" } 
+                ],
+                info: { tuition: "Max €3,900", ielts: "MOI Accepted", minGrade: "Egypt (65%)+" },
+                tags: ["QS Rank: #98", "Top Ranked", "Competitive"]
+            },
+            {
+                name: "Politecnico di Torino",
+                major: "Computer Engineering",
+                location: "Turin 🇮🇹",
+                image: "./images/polito.jpg",
+                applyLink: "https://apply.unito.it/",
+                calls: [
+                    { name: "Call 1", start: "2025-12-19", end: "2026-01-29", fee: "€50" },
+                    { name: "Call 2", start: "2026-03-03", end: "2026-04-02", fee: "€50" }
+                ],
+                info: { tuition: "Max €2,600", ielts: "5.5 Required", minGrade: "No official cutoff GPA" },
+                tags: ["QS Rank: #242","competitive admission", "Top Tier"]
+            },
+            {
+                name: "University of Genoa",
+                major: `Computer Engineering (No interview/test)<br>
+                        • Computer Science (Interview/Test)`,
+                location: "Genoa 🇮🇹",
+                image: "./images/Genoa.jpg",
+                applyLink: "https://servizionline.unige.it/web-studenti2/en/#/v2/preimma/domanda/new/td/5006/anac/2026",
+                calls: [
+                    { name: "Pre-Evaluation", start: "2025-11-26", end: "2026-03-20", fee: "€30" },
+                ],
+                info: { tuition: "Max €3,000", ielts: "MOI Accepted", minGrade: "Egypt (75%)+" },
+                tags: ["QS Rank: #530","Sea Side", "Good Acceptance"]
+            },
+            {
+                name: "University of Pavia",
+                major: "Computer Engineering",
+                location: "Pavia 🇮🇹",
+                image: "./images/pavia.jpg",
+                applyLink: "https://en.unipv.it/en/education/bachelors-and-masters-degree-programs",
+                calls: [
+                    { name: "1st Call", start: "2025-11-12", end: "2025-11-20", fee: "€35" },
+                    { name: "2nd Call", start: "2026-01-12", end: "2026-01-20", fee: "€35" },
+                    { name: "3rd Call", start: "2026-03-10", end: "2026-03-18", fee: "€35" },
+                ],
+                info: { tuition: "€4,000 Fixed", ielts: "MOI Accepted", minGrade: "No official cutoff GPA" },
+                tags: ["QS Rank: #423","Student City", " non-competitive admission"]
+            },
+            {
+                name: "University of Padua",
+                major: `Computer Engineering<br>
+                        • Computer Science<br>
+                        • Cybersecurity<br>
+                        • Data Science<br>
+                        • ICT for Internet and Multimedia`,
+                location: "Padua 🇮🇹",
+                image: "./images/Padova.jpg",
+                applyLink: "https://apply.unipd.it/",
+                calls: [
+                    { name: "1st Call", start: "2025-11-02", end: "2026-02-02", fee: "€60" },
+                    { name: "2nd Call", start: "2026-03-02", end: "2026-05-02", fee: "€60" }
+                ],
+                info: { tuition: "Max €2,739 Fixed", ielts: "MOI Accepted", minGrade: "Egypt (GPA: 2.8+ or 70%)" },
+                tags: ["QS Rank: #233","Oldest Uni", "Student Life"," competitive admission"]
+            },
+            {
+                name: "University of Pisa",
+                major: `Computer Engineering<br>
+                        • Computer Science<br>
+                        • Artificial intelligence and data engineering<br>
+                        • Cybersecurity<br>
+                        • Data science and business informatics<br>
+                        * (Interviews for all masters)`,
+                location: "Pisa 🇮🇹",
+                image: "./images/Pisa.jpg",
+                applyLink: "https://applymscenglish.unipi.it/en/studenti",
+                calls: [
+                    { name: "Non-EU Call", start: "2025-12-01", end: "2026-02-05", fee: "€30" },
+                ],
+                info: { tuition: "Max €2,900 Fixed", ielts: "MOI Accepted", minGrade: "No official cutoff GPA" },
+                tags: ["QS Rank: #343","Leaning Tower", "Low Cost Living"]
+            },
+            {
+                name: "University of Florence",
+                major: "Software: Science and Technology",
+                location: "Florence 🇮🇹",
+                image: "./images/Florence.jpg",
+                applyLink: "https://apply.unifi.it/",
+                calls: [
+                    { name: "1st Call", start: "2025-12-08", end: "2026-02-06", fee: "€20" },
+                    { name: "2nd Call", start: "2026-02-16", end: "2026-04-17", fee: "€20" },
+                ],
+                info: { tuition: "€2,500 Fixed", ielts: "MOI Accepted", minGrade: "No official cutoff GPA" },
+                tags: ["QS Rank: #404","Student City", " non-competitive admission"]
+            },
+            {
+                name: "Sapienza University of Rome ",
+                major: `Computer Science<br>
+                        • Artificial Intelligence and Robotics<br>
+                        • Cybersecurity<br>
+                        • Data science `,
+                location: "Roma 🇮🇹",
+                image: "./images/Sapienza.jpg",
+                applyLink: "https://www.uniroma1.it/en/admissions",
+                calls: [
+                    { name: "1st Call", start: "2025-12-22", end: "2026-05-15", fee: "€30" },
+                ],
+                info: { tuition: "€2,924 Fixed", ielts: "ielts 5.5", minGrade: "depend on the Program 75% or 80%" },
+                tags: ["QS Rank: #128","Capital City", "competitive admissionResearch"]
+            },
+            {
+                name: "University of Trieste",
+                major: `Computer Engineering<br>
+                        • Data Science and Artificial Intelligence`,
+                location: "Trieste 🇮🇹",
+                image: "./images/Trieste.jpg",
+                applyLink: "https://apply.units.it/",
+                calls: [
+                    { name: "1st Call", start: "2025-12-15", end: "2026-01-15", fee: "€40" },
+                    { name: "2nd Call", start: "2026-02-15", end: "2026-04-30", fee: "€40" },
+
+                ],
+                info: { tuition: "€600 Fixed", ielts: "MOI Accepted", minGrade: "No official cutoff GPA & apply 3 programs" },
+                tags: ["QS Rank: #751","Student City", " non-competitive admission"]
+            },
+            {
+                name: "University of Verona",
+                major: `COMPUTER SCIENCE <br>
+                        * (Online interview)`,
+                location: "Verona 🇮🇹",
+                image: "./images/Verona.jpg",
+                applyLink: "https://www.univr.it/en/our-services/international-degree-seeking-students",
+                calls: [
+                    { name: "1st Call", start: "2026-02-17", end: "2026-03-17", fee: "No fee" },
+                ],
+                info: { tuition: "€1000 Fixed", ielts: "MOI Accepted", minGrade: "81% & apply 3 programs" },
+                tags: ["QS Rank: #851","Student City", " non-competitive admission"]
+            },
+            {
+                name: "Ca' Foscari University of Venice",
+                major: `Computer Science and Information Technology <br>`,
+                location: "Mestre 🇮🇹",
+                image: "./images/Venice.jpg",
+                applyLink: "https://apply.unive.it/",
+                calls: [
+                    { name: "1st Call", start: "2026-02-4", end: "2026-03-4", fee: "€30" },
+                ],
+                info: { tuition: "€1300 Fixed", ielts: "ielts ", minGrade: "77%" },
+                tags: ["QS Rank: #660","Student City", " non-competitive admission"]
+            },
+            {
+                name: "University of Insubria",
+                major: `Computer Science <br>
+                        * (Online interview) `,
+                location: "Varese 🇮🇹", 
+                image: "./images/insubria.jpg",
+                applyLink: "https://www.uninsubria.eu/course-catalogue/course-list/degree-programs/computer-science-0",
+                calls: [
+                    { name: "1st Call", start: "2026-01-15", end: "2026-06-30", fee: "No Fee" },
+                ],
+                info: { tuition: "770 Fixed", ielts: "MOI Accepted ", minGrade: "No official cutoff GPA" },
+                tags: ["QS Rank: # +1020","Student City", " non-competitive admission"]
+            },
+            {
+                name: "University of Siena",
+                major: `Artificial Intelligence and Automation Engineering`,
+                location: "Siena 🇮🇹", 
+                image: "./images/Siena.jpg",
+                applyLink: "https://apply.unisi.it/",
+                calls: [
+                    { name: "1st Call", start: "2025-11-6", end: "2026-05-6", fee: "€50" },
+                ],
+                info: { tuition: "850 Fixed", ielts: "MOI Accepted ", minGrade: "No official cutoff GPA" },
+                tags: ["QS Rank: #607","Student City", " non-competitive admission"]
+            },
+            {
+                name: "University of Bologna",
+                major: `Computer Science<br>
+                        • Artificial Intelligence for Management <br>
+                        • Cybersecurity: from design to operations<br>
+                        • High-performance and quantum computing  `,
+                location: "Bologna 🇮🇹", 
+                image: "./images/bologna.jpg",
+                applyLink: "https://www.unibo.it/it/studiare/dottorati-master-specializzazioni-e-altra-formazione/master/bandi-aperti/#/filters?internazionale=1&lingua=en&",
+                calls: [
+                    { name: "1st Call", start: "2025-11-28", end: "2026-05-6", fee: "€50" },
+                ],
+                info: { tuition: "1300 Fixed", ielts: "IELTS ", minGrade: "No official cutoff GPA" },
+                tags: ["QS Rank: #138","Student City", " non-competitive admission"]
+            }
+        ];
+
+        const container = document.getElementById('cardsContainer');
+        const noResults = document.getElementById('noResults');
+
+        function getCallStatus(start, end) {
+            const now = new Date();
+            const s = new Date(start);
+            const e = new Date(end);
+            e.setHours(23, 59, 59);
+
+            if (now < s) return 'upcoming';
+            if (now >= s && now <= e) return 'open';
+            return 'closed';
+        }
+
+        function formatDate(dateStr) {
+            const d = new Date(dateStr);
+            return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+        }
+
+        function renderCards(data) {
+            container.innerHTML = '';
+            
+            if (data.length === 0) {
+                noResults.classList.remove('hidden');
+                return;
+            }
+            noResults.classList.add('hidden');
+            
+            data.forEach(uni => {
+                const callsStatus = uni.calls.map(c => getCallStatus(c.start, c.end));
+                
+                let mainStatus = 'Closed';
+                let badgeStyle = 'bg-slate-100 text-slate-500 border-slate-200';
+                let btnStyle = 'bg-slate-200 text-slate-400 cursor-not-allowed';
+                let btnText = 'Applications Closed';
+                let isOpen = false;
+
+                if (callsStatus.includes('open')) {
+                    mainStatus = 'Open Now';
+                    badgeStyle = 'bg-green-100 text-green-700 border-green-200 shadow-sm';
+                    btnStyle = 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-md hover:shadow-lg transform hover:-translate-y-0.5 cursor-pointer';
+                    btnText = 'Apply Now 🚀';
+                    isOpen = true;
+                } else if (callsStatus.includes('upcoming')) {
+                    mainStatus = 'Opening Soon';
+                    badgeStyle = 'bg-yellow-100 text-yellow-700 border-yellow-200';
+                    btnText = 'Wait for Call ⏳';
+                }
+
+                let callsHtml = '';
+                uni.calls.forEach(call => {
+                    const status = getCallStatus(call.start, call.end);
+                    let rowClass = '', icon = '', dateClass = 'text-xs';
+
+                    if (status === 'open') {
+                        rowClass = 'bg-green-50 border-green-100';
+                        icon = '<span class="text-[10px] uppercase font-bold text-green-600 bg-green-100 px-1.5 py-0.5 rounded">Active</span>';
+                        dateClass = 'text-green-800 font-semibold';
+                    } else if (status === 'upcoming') {
+                        rowClass = 'bg-yellow-50/50 border-yellow-100';
+                        icon = '<span class="text-[10px] uppercase font-bold text-yellow-600 bg-yellow-100 px-1.5 py-0.5 rounded">Soon</span>';
+                        dateClass = 'text-yellow-700';
+                    } else {
+                        rowClass = 'bg-gray-50 border-transparent opacity-70';
+                        icon = '<span class="text-[10px] uppercase font-bold text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded">Ended</span>';
+                        dateClass = 'text-gray-400 decoration-slate-400';
+                    }
+
+                    callsHtml += `
+                        <div class="p-2 rounded-lg border mb-2 last:mb-0 ${rowClass}">
+                            <div class="flex justify-between items-center mb-1">
+                                <div class="flex items-center gap-2">
+                                    <span class="text-xs font-bold text-slate-700">${call.name}</span>
+                                    <span class="text-[10px] bg-white border border-slate-200 px-1.5 rounded text-slate-500 font-medium">
+                                        💳 ${call.fee}
+                                    </span>
+                                </div>
+                                ${icon}
+                            </div>
+                            <div class="flex justify-between items-center ${dateClass}">
+                                <span>Start: ${formatDate(call.start)}</span>
+                                <span>End: ${formatDate(call.end)}</span>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                const card = `
+                    <div class="bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-slate-100 flex flex-col relative group overflow-hidden">
+                        <div class="h-44 overflow-hidden relative">
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent z-10"></div>
+                            <img src="${uni.image}" alt="${uni.name}" class="w-full h-full object-cover transform group-hover:scale-105 transition duration-700">
+                            <div class="absolute top-3 right-3 z-20 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide border ${badgeStyle} backdrop-blur-md bg-opacity-90">
+                                ${mainStatus}
+                            </div>
+                            <div class="absolute bottom-3 left-3 z-20 text-white">
+                                <h3 class="text-lg font-bold leading-tight shadow-sm text-slate-900 bg-white/90 px-2 py-1 rounded-lg backdrop-blur-sm">${uni.name}</h3>
+                            </div>
+                        </div>
+                        <div class="p-5 flex-1 flex flex-col">
+                            <p class="text-indigo-600 font-bold text-sm mb-4 flex items-center gap-1">
+                                🎓 ${uni.major}
+                            </p>
+                            <div class="mb-5">
+                                <div class="flex justify-between items-end mb-2">
+                                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Application Calls</p>
+                                </div>
+                                ${callsHtml}
+                            </div>
+                            
+                            <div class="bg-slate-50 p-3 rounded-xl mb-5 space-y-2">
+                                <div class="flex justify-between items-center text-[11px] text-slate-600">
+                                    <span class="font-semibold text-slate-800">💶 ${uni.info.tuition}</span>
+                                    <span class="text-orange-700 font-medium">🗣️ ${uni.info.ielts}</span>
+                                </div>
+                                <div class="pt-2 border-t border-slate-200 flex items-center gap-2 text-[11px] font-semibold text-indigo-800">
+                                    <span>🎓</span> ${uni.info.minGrade}
+                                </div>
+                            </div>
+
+                            <div class="flex flex-wrap gap-1.5 mb-4 mt-auto">
+                                ${uni.tags.map(tag => `<span class="text-[10px] bg-indigo-50 text-indigo-600 px-2 py-1 rounded-md border border-indigo-100 font-medium">${tag}</span>`).join('')}
+                            </div>
+                            <button 
+                                onclick="${isOpen && uni.applyLink ? `window.open('${uni.applyLink}', '_blank')` : ''}"
+                                class="w-full py-2.5 rounded-xl font-bold transition-all text-sm ${btnStyle}">
+                                ${btnText}
+                            </button>
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += card;
+            });
+        }
+
+        function filterUniversities() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const statusFilter = document.getElementById('statusFilter').value;
+
+            const filtered = universities.filter(uni => {
+                const matchesSearch = uni.name.toLowerCase().includes(query) || 
+                                      uni.major.toLowerCase().includes(query) ||
+                                      uni.location.toLowerCase().includes(query);
+                
+                const callsStatus = uni.calls.map(c => getCallStatus(c.start, c.end));
+                let uniStatus = 'closed';
+                if (callsStatus.includes('open')) uniStatus = 'open';
+                else if (callsStatus.includes('upcoming')) uniStatus = 'upcoming';
+                
+                const matchesStatus = statusFilter === 'all' || uniStatus === statusFilter;
+                return matchesSearch && matchesStatus;
+            });
+            renderCards(filtered);
+        }
+
+        renderCards(universities);
+    </script>
+</body>
+</html>
